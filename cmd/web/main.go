@@ -16,6 +16,7 @@ var app config.AppConfig
 var session *scs.SessionManager
 
 func main() {
+
 	session = scs.New()
 	session.Lifetime = 24 * time.Hour
 	session.Cookie.Persist = true

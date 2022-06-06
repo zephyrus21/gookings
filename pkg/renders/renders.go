@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"path/filepath"
 
+	"github.com/justinas/nosurf"
 	"github.com/zephyrus21/gookings/pkg/config"
 	"github.com/zephyrus21/gookings/pkg/models"
 )
@@ -15,13 +16,23 @@ import (
 var functions = template.FuncMap{}
 var app *config.AppConfig
 
-//? sets the config for the template cache
+//! sets the config for the template cache
 func NewTemplates(a *config.AppConfig) {
 	app = a
 }
 
+//! adds data for all templates
+func AddDefaultData(td *models.TemplateData, r *http.Request) *models.TemplateData {
+	td.Flash = app.Session.PopString(r.Context(), "flash")
+	td.Error = app.Session.PopString(r.Context(), "error")
+	td.Warning = app.Session.PopString(r.Context(), "warning")
+	td.CSRFToken = nosurf.Token(r)
+
+	return td
+}
+
 //! renders a template to the response writer with the given template name
-func RenderTemplate(w http.ResponseWriter, tmpl string, data *models.TemplateData) {
+func RenderTemplate(w http.ResponseWriter, r *http.Request, tmpl string, td *models.TemplateData) {
 	var tc map[string]*template.Template
 
 	if app.UseCache {
@@ -41,8 +52,10 @@ func RenderTemplate(w http.ResponseWriter, tmpl string, data *models.TemplateDat
 	//# creates a buffer to write the template to
 	buf := new(bytes.Buffer)
 
+	td = AddDefaultData(td, r)
+
 	//# renders the template to the buffer
-	_ = t.Execute(buf, data)
+	_ = t.Execute(buf, td)
 
 	//# writes the buffer to the response writer
 	_, err := buf.WriteTo(w)
