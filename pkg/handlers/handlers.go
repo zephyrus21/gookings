@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/zephyrus21/gookings/pkg/config"
+	"github.com/zephyrus21/gookings/pkg/forms"
 	"github.com/zephyrus21/gookings/pkg/models"
 	"github.com/zephyrus21/gookings/pkg/renders"
 )
@@ -70,7 +71,9 @@ func (m *Repository) Contact(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *Repository) Reservation(w http.ResponseWriter, r *http.Request) {
-	renders.RenderTemplate(w, r, "make-reservation.page.tmpl", &models.TemplateData{})
+	renders.RenderTemplate(w, r, "make-reservation.page.tmpl", &models.TemplateData{
+		Form: forms.New(nil),
+	})
 }
 
 func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
