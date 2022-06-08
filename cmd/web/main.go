@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/gob"
 	"fmt"
 	"log"
 	"net/http"
@@ -9,6 +10,7 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/zephyrus21/gookings/pkg/config"
 	"github.com/zephyrus21/gookings/pkg/handlers"
+	"github.com/zephyrus21/gookings/pkg/models"
 	"github.com/zephyrus21/gookings/pkg/renders"
 )
 
@@ -16,6 +18,7 @@ var app config.AppConfig
 var session *scs.SessionManager
 
 func main() {
+	gob.Register(models.Reservation{})
 
 	session = scs.New()
 	session.Lifetime = 24 * time.Hour
