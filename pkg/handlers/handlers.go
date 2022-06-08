@@ -114,8 +114,30 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// ReservationSummary displays the reservation summary page
 func (m *Repository) ReservationSummary(w http.ResponseWriter, r *http.Request) {
-	renders.RenderTemplate(w, r, "room.page.tmpl", &models.TemplateData{})
+	reservation, ok := m.App.Session.Get(r.Context(), "reservation").(models.Reservation)
+	if !ok {
+		m.App.Session.Put(r.Context(), "error", "Can't get reservation from session")
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
+
+	m.App.Session.Remove(r.Context(), "reservation")
+
+	data := make(map[string]interface{})
+	data["reservation"] = reservation
+
+	sd := reservation.StartDate.Format("2006-01-02")
+	ed := reservation.EndDate.Format("2006-01-02")
+	stringMap := make(map[string]string)
+	stringMap["start_date"] = sd
+	stringMap["end_date"] = ed
+
+	renders.RenderTemplate(w, r, "reservation-summary.page.tmpl", &models.TemplateData{
+		Data:      data,
+		StringMap: stringMap,
+	})
 }
 
 func (m *Repository) ShowLogin(w http.ResponseWriter, r *http.Request) {
