@@ -18,6 +18,26 @@ var app config.AppConfig
 var session *scs.SessionManager
 
 func main() {
+
+	err := run()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("Server started on :8080")
+
+	server := &http.Server{
+		Addr:    ":8080",
+		Handler: routes(&app),
+	}
+
+	err = server.ListenAndServe()
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func run() error {
 	gob.Register(models.Reservation{})
 
 	session = scs.New()
@@ -32,6 +52,7 @@ func main() {
 	tc, err := renders.CreateTemplateCache()
 	if err != nil {
 		log.Fatal(err)
+		return err
 	}
 
 	//# stores the template cache in the app config
@@ -45,15 +66,5 @@ func main() {
 	//# creates the new template cache
 	renders.NewTemplates(&app)
 
-	fmt.Println("Server started on :8080")
-
-	server := &http.Server{
-		Addr:    ":8080",
-		Handler: routes(&app),
-	}
-
-	err = server.ListenAndServe()
-	if err != nil {
-		log.Fatal(err)
-	}
+	return nil
 }
