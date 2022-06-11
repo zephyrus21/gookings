@@ -15,6 +15,7 @@ import (
 
 var functions = template.FuncMap{}
 var app *config.AppConfig
+var pathToTemplates = "../../templates"
 
 //! sets the config for the template cache
 func NewTemplates(a *config.AppConfig) {
@@ -69,7 +70,7 @@ func CreateTemplateCache() (map[string]*template.Template, error) { //@ returns 
 	myCache := map[string]*template.Template{}
 
 	//# gets all page template files in the templates directory
-	pages, err := filepath.Glob("../../templates/*.page.tmpl")
+	pages, err := filepath.Glob(fmt.Sprintf("%s/*.page.tmpl", pathToTemplates))
 	if err != nil {
 		fmt.Println("error parsing template:")
 		return myCache, err
@@ -87,7 +88,7 @@ func CreateTemplateCache() (map[string]*template.Template, error) { //@ returns 
 		}
 
 		//# gets all layout template files in the templates directory
-		matches, err := filepath.Glob("../../templates/*.layout.tmpl")
+		matches, err := filepath.Glob(fmt.Sprintf("%s/*.ayout.tmpl", pathToTemplates))
 		if err != nil {
 			fmt.Println("error parsing template:")
 			return myCache, err
@@ -95,7 +96,7 @@ func CreateTemplateCache() (map[string]*template.Template, error) { //@ returns 
 
 		if len(matches) > 0 {
 			//# adds the layout templates to the page template
-			ts, err = ts.ParseGlob("../../templates/*.layout.tmpl")
+			ts, err = ts.ParseGlob(fmt.Sprintf("%s/*.layout.tmpl", pathToTemplates))
 			if err != nil {
 				fmt.Println("error parsing template:")
 				return myCache, err
