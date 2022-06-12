@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 )
 
@@ -18,6 +19,7 @@ var theTests = []struct {
 	params             []postData
 	expectedStatusCode int
 }{
+	//? GET
 	{"home", "/", "GET", []postData{}, http.StatusOK},
 	{"about", "/about", "GET", []postData{}, http.StatusOK},
 	{"contact", "/contact", "GET", []postData{}, http.StatusOK},
@@ -25,6 +27,21 @@ var theTests = []struct {
 	{"majors-suite", "/majors-suite", "GET", []postData{}, http.StatusOK},
 	{"search-availability", "/search-availability", "GET", []postData{}, http.StatusOK},
 	{"make-reservation", "/make-reservation", "GET", []postData{}, http.StatusOK},
+	//? POST
+	{"search-availability-post", "/search-availability", "POST", []postData{
+		{key: "start", value: "2020-01-01"},
+		{key: "end", value: "2020-01-04"},
+	}, http.StatusOK},
+	{"search-availability-json-post", "/search-availability-json", "POST", []postData{
+		{key: "start", value: "2020-01-01"},
+		{key: "end", value: "2020-01-04"},
+	}, http.StatusOK},
+	{"make-reservation-post", "/make-reservation", "POST", []postData{
+		{key: "first_name", value: "John"},
+		{key: "last_name", value: "Doe"},
+		{key: "email", value: "john@doe.com"},
+		{key: "phone", value: "1234567890"},
+	}, http.StatusOK},
 }
 
 func TestHandlers(t *testing.T) {
@@ -43,8 +60,17 @@ func TestHandlers(t *testing.T) {
 				t.Errorf("for %s expected %d, got %d", e.name, e.expectedStatusCode, resp.StatusCode)
 			}
 		} else {
-
+			values := url.Values{}
+			for _, p := range e.params {
+				values.Add(p.key, p.value)
+			}
+			resp, err := ts.Client().PostForm(ts.URL+e.url, values)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if resp.StatusCode != e.expectedStatusCode {
+				t.Errorf("for %s expected %d, got %d", e.name, e.expectedStatusCode, resp.StatusCode)
+			}
 		}
-
 	}
 }
